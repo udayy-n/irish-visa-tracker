@@ -1,0 +1,5 @@
+pandas
+odfpy
+requests
+beautifulsoup4
+psycopg[binary]
