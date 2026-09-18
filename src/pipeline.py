@@ -1,9 +1,10 @@
 from pathlib import Path
 from datetime import datetime
 from zoneinfo import ZoneInfo
-from parser import parse_ods
 
-from database import (
+from src.parser import parse_ods
+
+from src.database import (
     create_database,
     get_existing_applications,
     insert_applications,
@@ -12,7 +13,7 @@ from database import (
     save_update_day
 )
 
-from detection import (
+from src.detection import (
     find_new_decisions,
     calculate_daily_statistics
 )
