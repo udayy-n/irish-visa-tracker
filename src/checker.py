@@ -1,22 +1,22 @@
-from datetime import datetime
-from zoneinfo import ZoneInfo
+from src.datetime import datetime
+from src.zoneinfo import ZoneInfo
 
-from downloader import (
+from src.downloader import (
     find_ods_url,
     download_ods
 )
 
-from file_utils import (
+from src.file_utils import (
     calculate_file_hash
 )
 
-from database import (
+from src.database import (
     create_database,
     is_file_processed,
     is_update_processed_today
 )
 
-from pipeline import (
+from src.pipeline import (
     process_ods
 )
 
