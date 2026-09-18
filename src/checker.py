@@ -1,5 +1,5 @@
-from src.datetime import datetime
-from src.zoneinfo import ZoneInfo
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from src.downloader import (
     find_ods_url,
