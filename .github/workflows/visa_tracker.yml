@@ -1,0 +1,35 @@
+name: Ireland Visa Tracker
+
+on:
+  schedule:
+    # Every 30 minutes, Monday-Friday
+    # 05:30-10:30 UTC = 11:00-16:00 IST
+    - cron: "30 5-10 * * 1-5"
+    - cron: "0 6-10 * * 1-5"
+
+  # Allows us to manually run the workflow from GitHub
+  workflow_dispatch:
+
+jobs:
+  check-visa-decisions:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run visa tracker
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          python -m src.checker
