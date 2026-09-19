@@ -3,3 +3,4 @@ odfpy
 requests
 beautifulsoup4
 psycopg[binary]
+streamlit
