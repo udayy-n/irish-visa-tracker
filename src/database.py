@@ -176,6 +176,45 @@ def get_existing_applications():
     return {row[0] for row in rows}
 
 
+def get_application_decision(application_number):
+    """
+    Return the decision for one application number.
+
+    Application number must contain digits only.
+    """
+
+    application_number = str(application_number).strip()
+
+    with get_connection() as conn:
+
+        if using_postgres():
+
+            row = conn.execute(
+                """
+                SELECT decision
+                FROM applications
+                WHERE application_number = %s
+                """,
+                (application_number,)
+            ).fetchone()
+
+        else:
+
+            row = conn.execute(
+                """
+                SELECT decision
+                FROM applications
+                WHERE application_number = ?
+                """,
+                (application_number,)
+            ).fetchone()
+
+    if row:
+        return row[0]
+
+    return None
+
+
 def insert_applications(data, baseline=False):
     """
     Insert application decisions into the database.
