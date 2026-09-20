@@ -515,3 +515,136 @@ def save_update_day(update_date):
                     current_time()
                 )
             )
+            
+def get_overall_statistics():
+    """
+    Get statistics for all applications currently stored
+    in the database.
+    """
+
+    with get_connection() as conn:
+
+        if using_postgres():
+            row = conn.execute("""
+                SELECT
+                    COUNT(*) AS total,
+                    COUNT(*) FILTER (
+                        WHERE LOWER(decision) = 'approved'
+                    ) AS approved,
+                    COUNT(*) FILTER (
+                        WHERE LOWER(decision) = 'refused'
+                    ) AS refused
+                FROM applications
+            """).fetchone()
+
+        else:
+            row = conn.execute("""
+                SELECT
+                    COUNT(*) AS total,
+                    SUM(
+                        CASE
+                            WHEN LOWER(decision) = 'approved'
+                            THEN 1 ELSE 0
+                        END
+                    ) AS approved,
+                    SUM(
+                        CASE
+                            WHEN LOWER(decision) = 'refused'
+                            THEN 1 ELSE 0
+                        END
+                    ) AS refused
+                FROM applications
+            """).fetchone()
+
+    total = row[0] or 0
+    approved = row[1] or 0
+    refused = row[2] or 0
+
+    approval_rate = (
+        approved / total * 100
+        if total > 0
+        else 0
+    )
+
+    refusal_rate = (
+        refused / total * 100
+        if total > 0
+        else 0
+    )
+
+    return {
+        "total": total,
+        "approved": approved,
+        "refused": refused,
+        "approval_rate": approval_rate,
+        "refusal_rate": refusal_rate,
+    }
+
+
+def get_latest_update_statistics():
+    """
+    Get statistics for the most recent batch of
+    newly detected visa decisions.
+    """
+
+    with get_connection() as conn:
+
+        row = conn.execute("""
+            SELECT
+                detected_at,
+                total_new,
+                approved,
+                refused
+            FROM decision_updates
+            ORDER BY id DESC
+            LIMIT 1
+        """).fetchone()
+
+    if not row:
+        return None
+
+    detected_at = row[0]
+    total_new = row[1]
+    approved = row[2]
+    refused = row[3]
+
+    approval_rate = (
+        approved / total_new * 100
+        if total_new > 0
+        else 0
+    )
+
+    refusal_rate = (
+        refused / total_new * 100
+        if total_new > 0
+        else 0
+    )
+
+    return {
+        "detected_at": detected_at,
+        "total_new": total_new,
+        "approved": approved,
+        "refused": refused,
+        "approval_rate": approval_rate,
+        "refusal_rate": refusal_rate,
+    }
+
+
+def get_update_history():
+    """
+    Get historical update statistics.
+    """
+
+    with get_connection() as conn:
+
+        rows = conn.execute("""
+            SELECT
+                detected_at,
+                total_new,
+                approved,
+                refused
+            FROM decision_updates
+            ORDER BY id ASC
+        """).fetchall()
+
+    return rows
